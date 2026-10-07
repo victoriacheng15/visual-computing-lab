@@ -19,7 +19,7 @@ run:
 		echo "Usage: make run <path/to/script.py>"; \
 		exit 1; \
 	fi
-	QT_QPA_PLATFORM=wayland uv run python $(RUN_ARGS)
+	QT_QPA_PLATFORM=xcb uv run python $(RUN_ARGS)
 
 lint:
 	uv run ruff check .
