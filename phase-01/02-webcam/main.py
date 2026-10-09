@@ -6,16 +6,23 @@ monitoring FPS, resolution, and ingestion latency.
 
 import argparse
 import os
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
 
+# Ensure repository root is on sys.path for shared utils
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 # OpenCV bundled Qt on Linux only provides libqxcb (XWayland)
 os.environ.setdefault("QT_QPA_PLATFORM", "xcb")
 
-import cv2
-import numpy as np
-from camera import FPSMeter, ThreadedCamera
+import cv2  # noqa: E402
+import numpy as np  # noqa: E402
+
+from utils.camera import FPSMeter, ThreadedCamera  # noqa: E402
 
 
 def detect_camera_indices() -> list[int]:

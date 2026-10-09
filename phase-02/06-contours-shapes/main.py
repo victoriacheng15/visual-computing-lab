@@ -12,12 +12,11 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-# Ensure Module 02 camera engine and local detector are importable
+# Ensure repository root and module dir are importable
 MODULE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = Path(__file__).resolve().parents[2]
-MODULE_02_DIR = REPO_ROOT / "phase-01" / "02-webcam"
 
-for path in (MODULE_DIR, MODULE_02_DIR):
+for path in (MODULE_DIR, REPO_ROOT):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
@@ -25,13 +24,14 @@ for path in (MODULE_DIR, MODULE_02_DIR):
 os.environ.setdefault("QT_QPA_PLATFORM", "xcb")
 
 import cv2  # noqa: E402
-from camera import FPSMeter, ThreadedCamera  # noqa: E402
 from detector import (  # noqa: E402
     ShapeConfig,
     ShapeMode,
     create_split_view,
     process_shapes,
 )
+
+from utils.camera import FPSMeter, ThreadedCamera  # noqa: E402
 
 
 def nothing(_: int) -> None:

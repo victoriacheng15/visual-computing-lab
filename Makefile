@@ -1,4 +1,4 @@
-.PHONY: help lint format check fix run
+.PHONY: help lint format check fix run sync
 
 # Support passing positional script path: make run path/to/script.py
 ifeq (run,$(firstword $(MAKECMDGOALS)))
@@ -8,11 +8,15 @@ endif
 
 help:
 	@echo "Available commands:"
+	@echo "  make sync          - Synchronize project virtualenv with uv"
 	@echo "  make lint          - Run ruff linter"
 	@echo "  make format        - Format code with ruff"
 	@echo "  make check         - Check linting and format status without changes"
 	@echo "  make fix           - Auto-fix linting issues and format code"
 	@echo "  make run <path>    - Run a Python script under Wayland"
+
+sync:
+	uv sync
 
 run:
 	@if [ -z "$(RUN_ARGS)" ]; then \

@@ -12,18 +12,19 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-# Ensure Module 02 camera engine is importable
-MODULE_02_DIR = Path(__file__).resolve().parents[1] / "02-webcam"
-if str(MODULE_02_DIR) not in sys.path:
-    sys.path.insert(0, str(MODULE_02_DIR))
+# Ensure repository root is on sys.path for shared utils
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 # OpenCV bundled Qt on Linux only provides libqxcb (XWayland)
 os.environ.setdefault("QT_QPA_PLATFORM", "xcb")
 
 import cv2  # noqa: E402
 import numpy as np  # noqa: E402
-from camera import FPSMeter, ThreadedCamera  # noqa: E402
 from filters import FILTER_NAMES, process_frame  # noqa: E402
+
+from utils.camera import FPSMeter, ThreadedCamera  # noqa: E402
 
 
 def detect_camera_indices() -> list[int]:
