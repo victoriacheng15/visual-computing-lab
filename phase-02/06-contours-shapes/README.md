@@ -16,14 +16,14 @@ This module introduces topological boundary extraction, contour hierarchy trees,
 
 ## Key Engineering Concepts
 
-### 1. Border Following & Topological Extraction
+### Border Following & Topological Extraction
 OpenCV implements the topological border-following algorithm formulated by Satoshi Suzuki and Keiichi Abe (1985). Given a binary mask, the algorithm traces connected components of boundary pixels using 8-connectivity.
 
 Contour retrieval modes govern topology representation:
 - **`RETR_EXTERNAL`:** Retrieves only outermost boundaries, ignoring all interior holes. Fastest when nested geometry is irrelevant.
 - **`RETR_TREE`:** Reconstructs the complete nested hierarchy of parent outlines and nested child holes as a 4-element integer array per contour `[Next, Previous, First_Child, Parent]`.
 
-### 2. Douglas-Peucker Polygon Approximation
+### Douglas-Peucker Polygon Approximation
 To classify geometric shapes, raw irregular contour boundaries are simplified into polygonal vertices using the Douglas-Peucker algorithm (`cv2.approxPolyDP`):
 
 $$\epsilon = \alpha \times \text{Perimeter}(C)$$
@@ -34,7 +34,22 @@ Where $\epsilon$ is the maximum perpendicular distance a vertex can deviate from
 - Vertex count $V = 5$: Pentagon.
 - Vertex count $V > 6$: Circularity metric determines Circle vs. generic polygon.
 
-### 3. Circularity and Compactness
+```mermaid
+flowchart TD
+    Mask["Binary Mask"] --> Suzuki["Suzuki Border Following (cv2.findContours)"]
+    Suzuki --> DP["Douglas-Peucker Approximation (cv2.approxPolyDP)"]
+    DP --> Vertices{"Vertex Count (V)"}
+    Vertices -->|"V = 3"| Tri["Triangle"]
+    Vertices -->|"V = 4"| Aspect{"Aspect Ratio (W / H)"}
+    Aspect -->|"0.92 <= AR <= 1.08"| Square["Square"]
+    Aspect -->|"AR < 0.92 or AR > 1.08"| Rect["Rectangle"]
+    Vertices -->|"V = 5"| Penta["Pentagon"]
+    Vertices -->|"V > 5"| Circ{"Circularity Metric (4*pi*Area / P^2)"}
+    Circ -->|"C >= 0.85"| Circle["Circle"]
+    Circ -->|"C < 0.85"| Poly["Generic Polygon"]
+```
+
+### Circularity and Compactness
 A circle minimizes perimeter for a given enclosed area. The isoperimetric quotient (circularity metric) is defined as:
 
 $$\mathcal{C} = \frac{4\pi \times \text{Area}}{\text{Perimeter}^2}$$
@@ -44,25 +59,14 @@ $$\mathcal{C} = \frac{4\pi \times \text{Area}}{\text{Perimeter}^2}$$
 - Equilateral triangle: $\mathcal{C} = \frac{\pi}{3\sqrt{3}} \approx 0.604$.
 - Thin, elongated shapes: $\mathcal{C} \to 0.0$.
 
-### 4. Oriented Bounding Geometry & Rotation Angle
+### Oriented Bounding Geometry & Rotation Angle
 Axis-aligned bounding boxes (`cv2.boundingRect`) change dimensions when an object rotates. To extract invariant physical dimensions, we fit minimum-area oriented bounding boxes:
 - **`cv2.minAreaRect`:** Computes the smallest rotated rectangle enclosing the contour, returning center $(x, y)$, dimensions $(w, h)$, and rotation angle $\theta \in [-90^\circ, 0^\circ]$.
 - **`cv2.fitEllipse`:** Fits an ellipse via algebraic least squares, deriving major/minor axis lengths and orientation angle.
 
-### 5. Convex Hull & Convexity Defects
+### Convex Hull & Convexity Defects
 - **Convex Hull (`cv2.convexHull`):** The smallest convex polygon enclosing all contour points (computed using Sklansky's algorithm).
 - **Convexity Defects (`cv2.convexityDefects`):** The cavities or valleys where the contour deviates inward from the convex hull. By measuring defect depth and angles, vision systems count extended fingers or distinguish complex concave objects.
-
----
-
-## File Structure
-
-```text
-phase-02/06-contours-shapes/
-├── README.md
-├── detector.py    # Shape classification engine, polygon approx, and geometric fitting
-└── main.py        # Real-time interactive shape lab with split-screen HUD & trackbars
-```
 
 ---
 
@@ -72,12 +76,6 @@ Execute via the project Makefile:
 
 ```bash
 make run phase-02/06-contours-shapes/main.py
-```
-
-Or directly via `uv`:
-
-```bash
-uv run python phase-02/06-contours-shapes/main.py
 ```
 
 ### Interactive Controls

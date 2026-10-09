@@ -16,11 +16,11 @@ This module introduces local invariant feature detection, binary and gradient de
 
 ## Key Engineering Concepts
 
-### 1. Keypoints vs. Descriptors
+### Keypoints vs. Descriptors
 - **Keypoint ($x, y, \sigma, \theta$):** A distinctive, repeatable spatial location in the image characterized by high 2D gradient variation across multiple scales and dominant orientation $\theta$.
 - **Descriptor ($\mathbf{d} \in \mathbb{R}^D$ or $\{0, 1\}^B$):** A compact numerical fingerprint describing the local pixel patch around the keypoint. Descriptors are engineered to remain invariant to changes in illumination, scale, in-plane rotation, and viewpoint perspective.
 
-### 2. ORB vs. SIFT
+### ORB vs. SIFT
 - **ORB (Oriented FAST and Rotated BRIEF):**
   - FAST detector locates corners across an image pyramid.
   - Computes the intensity centroid of each patch to assign an orientation angle $\theta$.
@@ -31,7 +31,7 @@ This module introduces local invariant feature detection, binary and gradient de
   - Builds a 128-dimensional floating-point vector of local gradient histograms.
   - Higher precision under extreme perspective skew, but requires floating-point $L_2$ Euclidean distance matching (`cv2.NORM_L2`).
 
-### 3. Ratio Test & RANSAC Homography
+### Ratio Test & RANSAC Homography
 - **Lowe's Ratio Test:** For each query descriptor, find the two nearest neighbors in the target ($m_1$ and $m_2$). Retain the match only if:
   $$\frac{\text{dist}(m_1)}{\text{dist}(m_2)} < 0.75$$
   This discards false matches caused by repetitive textures or ambiguous background patterns.
@@ -41,21 +41,23 @@ This module introduces local invariant feature detection, binary and gradient de
 - **RANSAC (Random Sample Consensus):**
   Iteratively selects minimal random subsets of 4 point pairs to solve $\mathbf{H}$, scoring each model by the number of inliers whose re-projection error is below a threshold (e.g., 3 pixels). Outliers caused by mismatching are completely discarded.
 
-### 4. Augmented Reality Perspective Warp
+```mermaid
+flowchart TD
+    Ref["Reference Image (Target Plane)"] --> DetRef["Extract Keypoints & Descriptors\n(ORB / SIFT)"]
+    Frame["Live Webcam Stream"] --> DetFrame["Extract Keypoints & Descriptors\n(ORB / SIFT)"]
+    DetRef --> Matcher["k-NN Feature Matching (k = 2)"]
+    DetFrame --> Matcher
+    Matcher --> Ratio["Lowe's Ratio Test\nd1 / d2 < 0.75\n(Filter ambiguous points)"]
+    Ratio --> RANSAC["RANSAC Homography Estimation\n(cv2.findHomography)\n4-point minimal solver & consensus"]
+    RANSAC --> H["3x3 Planar Homography Matrix (H)"]
+    H --> AR["Perspective Transform & Augmented Reality Warp\n(cv2.perspectiveTransform & cv2.warpPerspective)"]
+    AR --> Render["Render Bounding Polygon & Virtual Texture Overlay"]
+```
+
+### Augmented Reality Perspective Warp
 Once $\mathbf{H}$ is estimated:
 1. Compute the 4 transformed bounding corners of the reference target in the webcam frame via perspective transform.
 2. Invert $\mathbf{H}$ or warp a replacement image/video directly onto the detected planar target using `cv2.warpPerspective` and seamless alpha masking.
-
----
-
-## File Structure
-
-```text
-phase-02/08-feature-detection/
-├── README.md
-├── matcher.py     # Feature detectors (ORB, SIFT), matchers, RANSAC homography, and AR warp
-└── main.py        # Real-time interactive AR workbench with split-screen HUD
-```
 
 ---
 
@@ -65,12 +67,6 @@ Execute via the project Makefile:
 
 ```bash
 make run phase-02/08-feature-detection/main.py
-```
-
-Or directly via `uv`:
-
-```bash
-uv run python phase-02/08-feature-detection/main.py
 ```
 
 ### Interactive Controls

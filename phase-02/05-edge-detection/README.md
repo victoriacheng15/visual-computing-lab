@@ -15,7 +15,7 @@ Edge detection isolates **structural information** by finding sharp discontinuit
 
 ## Key Engineering Concepts
 
-### 2.1 First-Order Derivatives: Sobel & Scharr Operators
+### First-Order Derivatives: Sobel & Scharr Operators
 
 An image can be modeled as a continuous 2D intensity function $I(x, y)$. The image gradient is a vector pointing in the direction of the greatest rate of increase of intensity:
 
@@ -38,7 +38,7 @@ $$K_x^{\text{Scharr}} = \begin{bmatrix} -3 & 0 & +3 \\ -10 & 0 & +10 \\ -3 & 0 &
 
 ---
 
-### 2.2 Gradient Magnitude and Orientation
+### Gradient Magnitude and Orientation
 
 From $G_x$ and $G_y$, we compute two critical spatial properties per pixel:
 
@@ -58,7 +58,7 @@ To visualize edge orientation intuitively, we encode the gradient angle $\theta$
 
 ---
 
-### 2.3 Second-Order Derivatives: The Laplacian Operator
+### Second-Order Derivatives: The Laplacian Operator
 
 The Laplacian is an isotropic (rotationally invariant) second-order derivative:
 
@@ -72,17 +72,22 @@ While the first derivative produces an intensity peak at an edge, the second der
 
 ---
 
-### 2.4 The Canny Edge Detection Pipeline (1986)
+### The Canny Edge Detection Pipeline (1986)
 
 Developed by John F. Canny, this optimal multi-stage algorithm guarantees single-pixel edge responses and low false-positive rates:
 
 ```mermaid
 flowchart TD
-    A["Raw Frame (Grayscale)"] --> B["1. Gaussian Smoothing (Noise Filter)"]
-    B --> C["2. Gradient Calculation (Sobel Gx, Gy, Magnitude, Angle)"]
-    C --> D["3. Non-Maximum Suppression (Thins Edges to 1px)"]
-    D --> E["4. Double Thresholding (High T_upper, Low T_lower)"]
-    E --> F["5. Edge Tracking by Hysteresis (Keeps Weak Edges Connected to Strong)"]
+    A["Raw Grayscale Image"] --> B["Gaussian Smoothing (Noise Reduction)"]
+    B --> C["Sobel Gradient (Magnitude G and Angle theta)"]
+    C --> D["Non-Maximum Suppression (Thin ridges to 1px)"]
+    D --> E["Double Thresholding"]
+    E -->|"G >= T_upper"| Strong["Strong Edge (Definite Edge)"]
+    E -->|"T_lower <= G < T_upper"| Weak["Weak Edge (Candidate Edge)"]
+    E -->|"G < T_lower"| Suppressed["Suppressed (Discarded)"]
+    Strong --> Hysteresis["Hysteresis Edge Tracking"]
+    Weak -->|"8-Connected to Strong Edge?"| Hysteresis
+    Hysteresis --> Final["Final Binary Edge Map"]
 ```
 
 1. **Gaussian Smoothing:** Suppresses high-frequency sensor noise.
@@ -96,29 +101,12 @@ flowchart TD
 
 ---
 
-## File Structure
-
-```text
-phase-02/05-edge-detection/
-├── README.md
-├── detector.py    # Edge operators (Sobel, Scharr, Laplacian, Canny, HSV angle map)
-└── main.py        # Real-time interactive lab with split-screen HUD & trackbars
-```
-
----
-
 ## Running the Module
 
 Execute via the project Makefile:
 
 ```bash
 make run phase-02/05-edge-detection/main.py
-```
-
-Or directly via `uv`:
-
-```bash
-uv run python phase-02/05-edge-detection/main.py
 ```
 
 ### Interactive Controls

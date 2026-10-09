@@ -15,13 +15,13 @@ This module introduces temporal tracking and state estimation. We transition fro
 
 ## Key Engineering Concepts
 
-### 1. Centroid Tracking & ID Assignment
+### Centroid Tracking & ID Assignment
 Centroid tracking maintains object identities across successive frames ($t-1 \to t$).
 - Compute the Euclidean distance matrix between existing target centroids and newly detected candidate centroids.
 - Solve the assignment problem to associate detections to existing tracks.
 - Increment consecutive lost-frame counters for unmatched tracks, purging trajectories that exceed a maximum staleness threshold.
 
-### 2. Optical Flow (Lucas-Kanade & Farnebäck)
+### Optical Flow (Lucas-Kanade & Farnebäck)
 Optical flow calculates the apparent motion of image intensity patterns between consecutive frames under the brightness constancy assumption ($I(x, y, t) = I(x + \Delta x, y + \Delta y, t + \Delta t)$):
 
 $$I_x u + I_y v + I_t = 0$$
@@ -29,13 +29,13 @@ $$I_x u + I_y v + I_t = 0$$
 - **Lucas-Kanade (Sparse):** Solves for motion vectors $(u, v)$ over a local $N \times N$ neighborhood around high-contrast corner points (Shi-Tomasi corners) using image pyramids for multi-scale displacement.
 - **Farnebäck (Dense):** Approximates neighborhoods of both frames using quadratic polynomials, producing a dense motion vector field across every pixel.
 
-### 3. CamShift (Continuously Adaptive Mean-Shift)
+### CamShift (Continuously Adaptive Mean-Shift)
 CamShift adapts the Mean-Shift algorithm to track non-rigid, scaling targets:
 1. Converts the target bounding box to an HSV color histogram (Hue channel backprojection).
 2. Calculates the zeroth ($M_{00}$) and first-order ($M_{10}, M_{01}$) spatial moments of the probability distribution.
 3. Continuously shifts the search window center toward the probability centroid while dynamically updating window size and orientation angle.
 
-### 4. Kalman Filter State Estimation
+### Kalman Filter State Estimation
 A linear discrete Kalman filter estimates the true kinematic state of an object in the presence of sensor noise and temporary occlusions:
 
 $$\mathbf{x}_k = \mathbf{F} \mathbf{x}_{k-1} + \mathbf{w}_{k-1}, \quad \mathbf{z}_k = \mathbf{H} \mathbf{x}_k + \mathbf{v}_k$$
@@ -48,15 +48,24 @@ $$\mathbf{x} = \begin{bmatrix} x \\ y \\ v_x \\ v_y \end{bmatrix}, \quad \mathbf
 - **Update Step:** Computes the Kalman Gain $\mathbf{K}_k$ and corrects the state estimate using the measurement residual $\mathbf{z}_k - \mathbf{H} \hat{\mathbf{x}}_k^-$.
 - **Occlusion Handling:** If the target is physically occluded (no detection measurement $\mathbf{z}_k$), the predict step continues updating position based on estimated velocity $[v_x, v_y]$, maintaining smooth tracking through temporary dropouts.
 
----
-
-## File Structure
-
-```text
-phase-02/07-object-tracking/
-├── README.md
-├── tracker.py     # Tracking algorithms (Kalman filter, CamShift, Lucas-Kanade)
-└── main.py        # Real-time interactive tracking lab with split-screen HUD
+```mermaid
+flowchart TD
+    Init["Initialize State Vector x = [x, y, vx, vy]^T and Covariance P"] --> Predict
+    subgraph PredictPhase["1. Predict Phase (Kinematic Extrapolation)"]
+        Predict["State Extrapolation: x_pred = F * x\nCovariance Extrapolation: P_pred = F * P * F^T + Q"]
+    end
+    PredictPhase --> Detect{"Measurement Available? (Target Visible)"}
+    subgraph UpdatePhase["2. Update Phase (Correction)"]
+        Detect -->|"Yes (Detection z_k)"| Gain["Compute Kalman Gain:\nK = P_pred * H^T * (H * P_pred * H^T + R)^-1"]
+        Gain --> CorrectState["Update State: x = x_pred + K * (z_k - H * x_pred)"]
+        CorrectState --> CorrectCov["Update Covariance: P = (I - K * H) * P_pred"]
+    end
+    subgraph OcclusionHandling["Occlusion Fallback"]
+        Detect -->|"No (Temporary Occlusion)"| Coast["Coast on Velocity:\nx = x_pred\nP = P_pred\n(Preserve continuous trajectory)"]
+    end
+    CorrectCov --> Output["Emit Filtered Centroid (x, y) & Velocity (vx, vy)"]
+    Coast --> Output
+    Output -->|"Next Frame (t + dt)"| Predict
 ```
 
 ---
@@ -67,12 +76,6 @@ Execute via the project Makefile:
 
 ```bash
 make run phase-02/07-object-tracking/main.py
-```
-
-Or directly via `uv`:
-
-```bash
-uv run python phase-02/07-object-tracking/main.py
 ```
 
 ### Interactive Controls
