@@ -11,12 +11,15 @@ This module explores perceptual color spaces (**HSV** and **LAB**), explains why
 ## Key Engineering Concepts
 
 ### Why BGR Thresholding Fails
+
 In BGR, color (chrominance) and brightness (luminance) are mathematically coupled across all three channels.
+
 - When an object enters a shadow, its Blue, Green, and Red values all drop simultaneously.
 - When bright light reflects off the object, all three values spike toward 255 (white).
 - A bounding box in BGR color space cannot separate "a dim red ball" from "a bright gray shadow."
 
 ### The Cylindrical HSV Color Space
+
 HSV decouples chromaticity (pigment) from illumination:
 
 1. **Hue ($H \in [0, 179]$ in OpenCV):**
@@ -31,7 +34,8 @@ HSV decouples chromaticity (pigment) from illumination:
    The perceived intensity of light. Setting $V_{\min} > 50$ filters out dark room shadows; setting $S_{\min} > 70$ filters out neutral white background walls.
 
 ### The Red Wrap-Around Problem
-Because Hue is circular, pure red spans both ends of the scale ($350^\circ$ to $10^\circ$). In OpenCV ($[0, 179]$), red sits at both $[0, 10]$ and $[170, 179]$. 
+
+Because Hue is circular, pure red spans both ends of the scale ($350^\circ$ to $10^\circ$). In OpenCV ($[0, 179]$), red sits at both $[0, 10]$ and $[170, 179]$.
 Detecting red requires computing two masks and merging them with a bitwise OR operation:
 
 $$\text{Mask}_{\text{red}} = \text{inRange}(I_{\text{HSV}}, [0, S_{\min}, V_{\min}], [10, S_{\max}, V_{\max}]) \lor \text{inRange}(I_{\text{HSV}}, [170, S_{\min}, V_{\min}], [179, S_{\max}, V_{\max}])$$
@@ -50,11 +54,14 @@ flowchart TD
 ```
 
 ### Morphological Noise Cleanup
+
 Raw color masks frequently contain sensor noise (isolated white speckles) and internal dropouts (small dark holes from texture or reflections). We clean the binary mask using morphological operations:
+
 - **Opening (Erosion followed by Dilation):** Eliminates tiny false-positive specks.
 - **Closing (Dilation followed by Erosion):** Fills false-negative interior holes without changing the object's outer dimensions.
 
 ### Centroid Extraction (Spatial Moments)
+
 Once a clean binary mask is obtained, its center of mass $(c_x, c_y)$ is computed via zeroth- and first-order spatial moments:
 
 $$c_x = \frac{M_{10}}{M_{00}}, \quad c_y = \frac{M_{01}}{M_{00}}$$
@@ -72,6 +79,7 @@ make run phase-02/04-color-detection/main.py
 ```
 
 ### Interactive Controls
+
 - **`1`:** Red preset (handles wrap-around)
 - **`2`:** Green preset
 - **`3`:** Blue preset

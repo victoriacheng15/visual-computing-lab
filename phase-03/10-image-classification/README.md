@@ -13,6 +13,7 @@ This module builds a real-time, interactive visual embedding and classification 
 ### High-Dimensional Feature Embeddings
 
 Raw pixel values are notoriously sensitive to illumination changes and minute spatial translations. To classify visual patterns reliably, vision pipelines project raw image matrices into a compact $D$-dimensional latent vector $\mathbf{z} \in \mathbb{R}^D$:
+
 - **Photometric Moments:** Channel means and standard deviations across both RGB and cylindrical HSV spaces capture pigment and lighting distribution.
 - **Color Histograms:** 2D joint Hue-Saturation histograms provide illumination-tolerant chromatic representations.
 - **Spatial Gradient Energy:** Directional Sobel derivatives quantized into orientation bins across spatial quadrants encode shape boundaries and structural geometry.
@@ -56,6 +57,7 @@ Single-frame neural and visual inferences suffer from high-frequency prediction 
 $$\bar{\mathbf{p}}_t = \alpha \mathbf{p}_t + (1 - \alpha) \bar{\mathbf{p}}_{t-1}$$
 
 Where $\alpha \in [0.1, 0.3]$ is the smoothing factor:
+
 - Suppresses single-frame misclassifications and spurious flickers.
 - Maintains responsive classification latency without perceptible lag.
 
@@ -70,6 +72,7 @@ make run phase-03/10-image-classification/main.py
 ```
 
 ### Interactive Controls
+
 - **`1`, `2`, `3`, `4`:** Capture current focus crop as a training sample for Class 1, 2, 3, or 4
 - **`t`:** Toggle temporal EMA prediction smoothing on/off (observe raw jitter vs smoothed stability)
 - **`r`:** Reset and clear all learned class prototypes
