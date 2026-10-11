@@ -5,6 +5,7 @@
 In Modules 04–06, detection algorithms operated independently on single frames without temporal continuity: if a target passed behind an obstacle for a fraction of a second, the detector lost it completely.
 
 This module introduces temporal tracking and state estimation. We transition from stateless per-frame detection to continuous trajectory modeling across time:
+
 1. Centroid tracking with Euclidean distance bipartite association.
 2. Sparse optical flow using the Lucas-Kanade differential method (`cv2.calcOpticalFlowPyrLK`).
 3. Dense optical flow using Gunnar Farnebäck's polynomial expansion algorithm (`cv2.calcOpticalFlowFarneback`).
@@ -16,12 +17,15 @@ This module introduces temporal tracking and state estimation. We transition fro
 ## Key Engineering Concepts
 
 ### Centroid Tracking & ID Assignment
+
 Centroid tracking maintains object identities across successive frames ($t-1 \to t$).
+
 - Compute the Euclidean distance matrix between existing target centroids and newly detected candidate centroids.
 - Solve the assignment problem to associate detections to existing tracks.
 - Increment consecutive lost-frame counters for unmatched tracks, purging trajectories that exceed a maximum staleness threshold.
 
 ### Optical Flow (Lucas-Kanade & Farnebäck)
+
 Optical flow calculates the apparent motion of image intensity patterns between consecutive frames under the brightness constancy assumption ($I(x, y, t) = I(x + \Delta x, y + \Delta y, t + \Delta t)$):
 
 $$I_x u + I_y v + I_t = 0$$
@@ -30,12 +34,15 @@ $$I_x u + I_y v + I_t = 0$$
 - **Farnebäck (Dense):** Approximates neighborhoods of both frames using quadratic polynomials, producing a dense motion vector field across every pixel.
 
 ### CamShift (Continuously Adaptive Mean-Shift)
+
 CamShift adapts the Mean-Shift algorithm to track non-rigid, scaling targets:
+
 1. Converts the target bounding box to an HSV color histogram (Hue channel backprojection).
 2. Calculates the zeroth ($M_{00}$) and first-order ($M_{10}, M_{01}$) spatial moments of the probability distribution.
 3. Continuously shifts the search window center toward the probability centroid while dynamically updating window size and orientation angle.
 
 ### Kalman Filter State Estimation
+
 A linear discrete Kalman filter estimates the true kinematic state of an object in the presence of sensor noise and temporary occlusions:
 
 $$\mathbf{x}_k = \mathbf{F} \mathbf{x}_{k-1} + \mathbf{w}_{k-1}, \quad \mathbf{z}_k = \mathbf{H} \mathbf{x}_k + \mathbf{v}_k$$
@@ -79,6 +86,7 @@ make run phase-02/07-object-tracking/main.py
 ```
 
 ### Interactive Controls
+
 - **`1`:** Kalman Filter Tracker (smooth trajectory with occlusion prediction)
 - **`2`:** Sparse Optical Flow (Lucas-Kanade motion tracking on Shi-Tomasi corners)
 - **`3`:** Dense Optical Flow (Farnebäck motion vector field colorized via HSV)

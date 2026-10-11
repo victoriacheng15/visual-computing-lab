@@ -1,12 +1,12 @@
 # Visual Computing Exploration Lab
 
-A progressive visual computing curriculum on Linux (Fedora), progressing from 2D pixel-level digital signal processing to real-time 3D perception, graphics rendering, and cyber-physical digital twins.
+A progressive visual computing project on Linux (Fedora), progressing from 2D pixel-level digital signal processing to real-time 3D perception, graphics rendering, and cyber-physical digital twins.
 
 ---
 
-## Curriculum Architecture
+## Roadmap Architecture
 
-A progressive curriculum spanning 2D digital signal processing to real-time spatial computing:
+A progressive progression spanning 2D digital signal processing to real-time spatial computing:
 
 - **Phase 1: 2D Foundations & Signal Processing**: Coordinate conventions, camera ingestion pipelines, convolutions, and spatial filtering.
 - **Phase 2: Classical Computer Vision & Geometric Features**: Perceptual color segmentation, differential edge operators, contour topology, kinematic tracking, and local invariant features.
@@ -44,16 +44,19 @@ make check
 
 ## Completed Modules Reference
 
-| Module | Topic | Core Concepts | Documentation |
-| :---: | :--- | :--- | :--- |
-| 01 | Image Basics | NumPy arrays, BGR vs RGB, slicing, memory contiguity | [README](phase-01/01-image-basics/README.md) |
-| 02 | Webcam & Real-Time Ingestion | Multi-threaded ingestion, zero-latency queue, synthetic fallback | [README](phase-01/02-webcam/README.md) |
-| 03 | Spatial Image Processing | Spatial convolutions, kernel scaling, bilateral and portrait blur | [README](phase-01/03-image-processing/README.md) |
-| 04 | Color Detection & HSV | HSV thresholding, dual-interval red wrap, moment tracking | [README](phase-02/04-color-detection/README.md) |
-| 05 | Differential Edge Detection | Sobel, Scharr, Laplacian zero-crossings, Canny pipeline, angle map | [README](phase-02/05-edge-detection/README.md) |
-| 06 | Contours & Shape Classification | Suzuki contours, Douglas-Peucker, circularity, rotated boxes | [README](phase-02/06-contours-shapes/README.md) |
-| 07 | Object Tracking | Kalman filter kinematics, Lucas-Kanade, Farneback, CamShift | [README](phase-02/07-object-tracking/README.md) |
-| 08 | Feature Detection & Matching | ORB, SIFT, FLANN matching, RANSAC homography, AR perspective warp | [README](phase-02/08-feature-detection/README.md) |
+| Module | Topic | Core Concepts |
+| :---: | :--- | :--- |
+| 01 | [Image Basics](phase-01/01-image-basics/README.md) | NumPy arrays, BGR vs RGB, slicing, memory contiguity |
+| 02 | [Webcam & Real-Time Ingestion](phase-01/02-webcam/README.md) | Multi-threaded ingestion, zero-latency queue, synthetic fallback |
+| 03 | [Spatial Image Processing](phase-01/03-image-processing/README.md) | Spatial convolutions, kernel scaling, bilateral and portrait blur |
+| 04 | [Color Detection & HSV](phase-02/04-color-detection/README.md) | HSV thresholding, dual-interval red wrap, moment tracking |
+| 05 | [Differential Edge Detection](phase-02/05-edge-detection/README.md) | Sobel, Scharr, Laplacian zero-crossings, Canny pipeline, angle map |
+| 06 | [Contours & Shape Classification](phase-02/06-contours-shapes/README.md) | Suzuki contours, Douglas-Peucker, circularity, rotated boxes |
+| 07 | [Object Tracking](phase-02/07-object-tracking/README.md) | Kalman filter kinematics, Lucas-Kanade, Farneback, CamShift |
+| 08 | [Feature Detection & Matching](phase-02/08-feature-detection/README.md) | ORB, SIFT, FLANN matching, RANSAC homography, AR perspective warp |
+| 09 | [Object Detection & NMS](phase-03/09-object-detection/README.md) | Scale pyramids, proposal storm, vectorized IoU, Non-Maximum Suppression |
+| 10 | [Image Classification & Embeddings](phase-03/10-image-classification/README.md) | 128D visual embeddings, metric learning, cosine logits, Softmax, EMA smoothing |
+| 11 | [Foreground Segmentation & Virtual BG](phase-03/11-segmentation/README.md) | MOG2/KNN statistical models, shadow suppression, alpha feathering, virtual compositing |
 
 ---
 

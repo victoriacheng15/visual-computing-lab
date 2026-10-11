@@ -5,6 +5,7 @@
 In Module 04, we segmented objects by color thresholds in HSV space. While fast, color segmentation is fragile when illumination changes or shadows fall across an object.
 
 Edge detection isolates **structural information** by finding sharp discontinuities in pixel brightness. Edges preserve geometric shape and boundaries while discarding redundant photometric intensity data. This module explores:
+
 1. First-order directional derivatives using **Sobel** and **Scharr** convolution kernels.
 2. Gradient magnitude ($G$) and continuous gradient direction ($\theta$).
 3. Real-time **HSV gradient angle visualization** (mapping edge orientation to color hues).
@@ -24,6 +25,7 @@ $$\nabla I = \begin{bmatrix} G_x \\ G_y \end{bmatrix} = \begin{bmatrix} \frac{\p
 Because digital images are discrete pixel grids, partial derivatives are approximated using convolution kernels.
 
 #### Sobel Operator ($3 \times 3$)
+
 The Sobel operator combines Gaussian smoothing with finite-difference differentiation:
 
 $$K_x = \begin{bmatrix} -1 & 0 & +1 \\ -2 & 0 & +2 \\ -1 & 0 & +1 \end{bmatrix}, \quad K_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ +1 & +2 & +1 \end{bmatrix}$$
@@ -32,6 +34,7 @@ $$K_x = \begin{bmatrix} -1 & 0 & +1 \\ -2 & 0 & +2 \\ -1 & 0 & +1 \end{bmatrix},
 - $K_y$ highlights horizontal edges (vertical intensity changes).
 
 #### Scharr Operator ($3 \times 3$)
+
 For small $3 \times 3$ kernels, Sobel suffers from rotational variance (unequal response across different edge angles). The Scharr operator achieves higher rotational symmetry and more accurate first derivatives:
 
 $$K_x^{\text{Scharr}} = \begin{bmatrix} -3 & 0 & +3 \\ -10 & 0 & +10 \\ -3 & 0 & +3 \end{bmatrix}, \quad K_y^{\text{Scharr}} = \begin{bmatrix} -3 & -10 & -3 \\ 0 & 0 & 0 \\ +3 & +10 & +3 \end{bmatrix}$$
@@ -51,7 +54,9 @@ From $G_x$ and $G_y$, we compute two critical spatial properties per pixel:
    Points perpendicular to the physical edge direction.
 
 #### Vector Field Angle Map via HSV
+
 To visualize edge orientation intuitively, we encode the gradient angle $\theta$ directly into HSV color space:
+
 - **Hue ($H$):** Angle $\theta$ mapped to $[0, 179]$ (horizontal edges appear green/magenta, vertical edges appear blue/red).
 - **Saturation ($S$):** Clamped to maximum ($255$).
 - **Value ($V$):** Modulated directly by normalized gradient magnitude $G$. Weak gradients fade to black, while sharp edges glow with their orientation color.
@@ -110,6 +115,7 @@ make run phase-02/05-edge-detection/main.py
 ```
 
 ### Interactive Controls
+
 - **`1`:** Canny Edge Pipeline (single-pixel thin edges with hysteresis tracking)
 - **`2`:** Sobel Gradient Magnitude (first derivative $|G_x| + |G_y|$)
 - **`3`:** Scharr Derivative (high-accuracy rotational gradient)

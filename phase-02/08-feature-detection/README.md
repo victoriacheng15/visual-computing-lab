@@ -5,6 +5,7 @@
 In Modules 04–07, tracking and detection relied on global properties like color histograms or moving corner swarms. However, if an object rotates in 3D, gets partially occluded, or scales significantly, those methods break down.
 
 This module introduces local invariant feature detection, binary and gradient descriptors, matching strategies, and robust geometric transformation estimation. We build the complete pipeline for planar object recognition and augmented reality perspective replacement:
+
 1. Corner detectors: Harris Corner Detector and FAST (Features from Accelerated Segment Test).
 2. Scale- and rotation-invariant keypoint descriptors: ORB (Oriented FAST and Rotated BRIEF) and SIFT (Scale-Invariant Feature Transform).
 3. Descriptor matching: Brute-Force Matcher (Hamming distance for binary strings, L2 norm for float vectors) and FLANN (Fast Library for Approximate Nearest Neighbors).
@@ -17,10 +18,12 @@ This module introduces local invariant feature detection, binary and gradient de
 ## Key Engineering Concepts
 
 ### Keypoints vs. Descriptors
+
 - **Keypoint ($x, y, \sigma, \theta$):** A distinctive, repeatable spatial location in the image characterized by high 2D gradient variation across multiple scales and dominant orientation $\theta$.
 - **Descriptor ($\mathbf{d} \in \mathbb{R}^D$ or $\{0, 1\}^B$):** A compact numerical fingerprint describing the local pixel patch around the keypoint. Descriptors are engineered to remain invariant to changes in illumination, scale, in-plane rotation, and viewpoint perspective.
 
 ### ORB vs. SIFT
+
 - **ORB (Oriented FAST and Rotated BRIEF):**
   - FAST detector locates corners across an image pyramid.
   - Computes the intensity centroid of each patch to assign an orientation angle $\theta$.
@@ -32,6 +35,7 @@ This module introduces local invariant feature detection, binary and gradient de
   - Higher precision under extreme perspective skew, but requires floating-point $L_2$ Euclidean distance matching (`cv2.NORM_L2`).
 
 ### Ratio Test & RANSAC Homography
+
 - **Lowe's Ratio Test:** For each query descriptor, find the two nearest neighbors in the target ($m_1$ and $m_2$). Retain the match only if:
   $$\frac{\text{dist}(m_1)}{\text{dist}(m_2)} < 0.75$$
   This discards false matches caused by repetitive textures or ambiguous background patterns.
@@ -55,7 +59,9 @@ flowchart TD
 ```
 
 ### Augmented Reality Perspective Warp
+
 Once $\mathbf{H}$ is estimated:
+
 1. Compute the 4 transformed bounding corners of the reference target in the webcam frame via perspective transform.
 2. Invert $\mathbf{H}$ or warp a replacement image/video directly onto the detected planar target using `cv2.warpPerspective` and seamless alpha masking.
 
@@ -70,6 +76,7 @@ make run phase-02/08-feature-detection/main.py
 ```
 
 ### Interactive Controls
+
 - **`1`:** ORB Feature Matching & Homography (Fast binary descriptors)
 - **`2`:** SIFT Feature Matching & Homography (High-precision gradient descriptors)
 - **`3`:** Raw Keypoint Detection (Displays orientation vectors and octave scales)
